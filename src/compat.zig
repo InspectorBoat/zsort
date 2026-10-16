@@ -5,6 +5,7 @@ const builtin = @import("builtin");
 const std = @import("std");
 
 pub const is_v016 = builtin.zig_version.major == 0 and builtin.zig_version.minor >= 16;
+pub const is_v017 = builtin.zig_version.major == 0 and builtin.zig_version.minor >= 17;
 
 pub const Io = if (is_v016) std.Io else void;
 pub const Dir = if (is_v016) std.Io.Dir else std.fs.Dir;
@@ -186,6 +187,16 @@ pub fn entry(comptime run_main: anytype) type {
 
         pub const main = if (is_v016) mainV16 else mainV15;
     };
+}
+
+pub fn parseAst(allocator: std.mem.Allocator, source: [:0]const u8) !std.zig.Ast {
+    if (is_v017) return .parse(allocator, source, .{});
+    return .parse(allocator, source, .zig);
+}
+
+pub fn dupeZ(allocator: std.mem.Allocator, comptime T: type, m: []const T) ![:0]T {
+    if (is_v017) return allocator.dupeSentinel(T, m, 0);
+    return allocator.dupeZ(T, m);
 }
 
 /// Zig 0.16 has no `argsAlloc`; the args arrive via `Init` and must be

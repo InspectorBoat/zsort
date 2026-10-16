@@ -6,6 +6,8 @@
 
 const std = @import("std");
 
+const compat = @import("compat.zig");
+
 const Ast = std.zig.Ast;
 
 pub const class_std_builtin: u2 = 0;
@@ -140,7 +142,7 @@ const Found = struct {
 /// into it (or into `Analysis.owned_paths` for escaped literals), so both
 /// must outlive the analysis.
 pub fn analyze(allocator: std.mem.Allocator, source: [:0]const u8) !Analysis {
-    var tree = try std.zig.Ast.parse(allocator, source, .zig);
+    var tree = try compat.parseAst(allocator, source);
     defer tree.deinit(allocator);
 
     var result: Analysis = .{};
